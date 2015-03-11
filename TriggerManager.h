@@ -23,6 +23,8 @@
 #define SHIFTREGISTER_RCK B,0  // Register Clock Pin (SH_CP) ,12
 #define SHIFTREGISTER_SRCK B,4 // Storage Register Clock ST_CP, 8
 
+#include "shiftRegisterFast.h"
+
 
 // the number of 595s that are daisy chained
 // could be calculated from number of channels but this avoids dynamic allocation
@@ -33,8 +35,6 @@ const uint8_t number595 = 3;
 // value can be between 15626 and 62
 // TODO: check maximum frequency defined by execution time of ISR
 const uint16_t interruptFreq = 1000;
-
-#include "shiftRegisterFast.h"
 
 
 class TriggerManager {
@@ -64,7 +64,7 @@ public:
 
 private:
 	volatile uint8_t states[number595];
-	volatile uint16_t toggleTimes[number595*8];
+	volatile uint8_t toggleTimes[number595*8];
 	uint8_t preDelays[number595*8];
 	uint8_t holdTimes[number595*8];
 
