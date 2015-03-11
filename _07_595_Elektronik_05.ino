@@ -46,14 +46,16 @@ const uint8_t channels = 25;
  //             	595-PIN    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
 uint8_t preDelays[channels] = {20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20  };
 uint8_t holdTimes[channels] = {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90  };
+uint8_t  midiNote[channels] = {1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25  };
 
 
 
-
-// Readout the Coded switch on PIN 2,4,5,7 on Startup. To set the MIDI Channel (1-16)
+// Readout the coded switch on PIN 2,4,5,7 on Startup. To set the MIDI Channel (1-16)
 uint8_t readMidiChannel()
 {
+	// set pins as inputs
 	pinMode(2, INPUT_PULLUP);pinMode(7, INPUT_PULLUP);pinMode(4, INPUT_PULLUP);pinMode(5, INPUT_PULLUP); // the pins for the coded channel switch with build in PULLUP resistors
+
 	uint8_t i=0;
 	bitWrite(i, 0, !digitalRead(5));
 	bitWrite(i, 1, !digitalRead(7));
@@ -65,8 +67,13 @@ uint8_t readMidiChannel()
 
 
 void HandleNoteOn(byte channel, byte note, byte velocity) {
-	//..should there be some mapping note --> 595-pin?
-	triggers.setOn(note);
+
+	for (uint8_t index=0; index< channels; index++) {
+		if (midiNote[index] == note) {
+			triggers.setOn(note);
+			return; // no need to search further
+		}
+	}
 }
 
 void HandleNoteOff(byte channel, byte note, byte velocity) {
@@ -79,9 +86,9 @@ void HandleNoteOff(byte channel, byte note, byte velocity) {
 void setup() {
         pinMode(13, OUTPUT); // what for?
 
-        MIDI.setHandleNoteOn(HandleNoteOn); // 
-        MIDI.setHandleNoteOff(HandleNoteOff); // 
-        MIDI.begin(readMidiChannel());                     // listens on only channel wich is set up with the coded rotyr encoder
+        MIDI.setHandleNoteOn(HandleNoteOn);
+        MIDI.setHandleNoteOff(HandleNoteOff);
+        MIDI.begin(readMidiChannel());  // listens on only channel which is set up with the coded switch
 
         triggers.init(channels,&preDelays[0],&holdTimes[0]);
 }
