@@ -49,6 +49,7 @@ uint8_t holdTimes[channels] = {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 9
 
 
 
+
 // Readout the Coded switch on PIN 2,4,5,7 on Startup. To set the MIDI Channel (1-16)
 uint8_t readMidiChannel()
 {
