@@ -5,7 +5,8 @@
 //
 // Contributors: Moritz Simon Geist, LennartS
 // 01/2015, v.05: Triggercontrol added
-//
+// [...]
+// v06: added trigger control
 // === Recources: ===
 // 1. 
 // 2. MIDI Library https://github.com/FortySevenEffects/arduino_midi_library (used: c4.2.)
@@ -16,6 +17,7 @@
 // does not get parsed when using Arduino IDE
 #ifdef EXTERNAL_IDE
 #include <Arduino.h>
+#include <shiftRegisterFast.h>
 int main(void) {
   init();
   setup();
@@ -44,7 +46,7 @@ extern TriggerManager triggers;
 //  Set up dynamic behaviour for different 595 pins that are controlled by a TriggerManager
 const uint8_t channels = 25;
  //             	595-PIN    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
-uint8_t preDelays[channels] = {20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20  };
+uint8_t preDelays[channels] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  };
 uint8_t holdTimes[channels] = {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90  };
 uint8_t  midiNote[channels] = {1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25  };
 
@@ -67,6 +69,9 @@ uint8_t readMidiChannel()
 
 
 void HandleNoteOn(byte channel, byte note, byte velocity) {
+      
+    digitalWrite(13,HIGH);
+  
 
 	for (uint8_t index=0; index< channels; index++) {
 		if (midiNote[index] == note) {
@@ -78,24 +83,37 @@ void HandleNoteOn(byte channel, byte note, byte velocity) {
 
 void HandleNoteOff(byte channel, byte note, byte velocity) {
 	//needed or not?
+      digitalWrite(13,LOW);
 }
 
 
 
 
 void setup() {
-        pinMode(13, OUTPUT); // what for?
+      pinMode(13, OUTPUT); // what for?
 
-        MIDI.setHandleNoteOn(HandleNoteOn);
-        MIDI.setHandleNoteOff(HandleNoteOff);
-        MIDI.begin(readMidiChannel());  // listens on only channel which is set up with the coded switch
+      MIDI.setHandleNoteOn(HandleNoteOn);
+      MIDI.setHandleNoteOff(HandleNoteOff);
+      MIDI.begin(readMidiChannel());  // listens on only channel which is set up with the coded switch
+        
 
-        triggers.init(channels,&preDelays[0],&holdTimes[0]);
+
+      triggers.init(channels,&preDelays[0],&holdTimes[0]);
 }
 
 
 void loop() {
 	MIDI.read();
+
+
+      uint8_t holdTime = analogRead(2);
+      for (uint8_t index=0; index<channels; index++) {
+        triggers.setHoldTime(index,holdTime);
+      }
+
+    
+    
+    
 }
 
 

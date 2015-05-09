@@ -8,7 +8,7 @@
 #ifndef SHIFTREGISTERFAST_H_
 #define SHIFTREGISTERFAST_H_
 
-#include <portManipulations.h>
+#include "portManipulations.h"
 
 // namespace to quickly write data to one shift register
 //
