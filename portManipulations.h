@@ -2,7 +2,7 @@
  * portManipulations.h
  *
  *  Created on: 06.07.2014
- *      Author: user
+ *      Author: Lennart Schierling for bastl-instruments
  *      thanks to: http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=91304
  */
 

@@ -2,7 +2,17 @@
  * TriggerManager.h
  *
  *  Created on: 11.03.2015
- *      Author: user
+ *      Author: Lennart Schierling for bastl-instruments
+ *
+ *
+ *  This object provides an interface that lets you trigger individual pins on daisy-chained 595s.
+ *  * For each pin, you can define a pre-delay as well as a hold time.
+ *  * Calling setOn() on a particular pin number sets this pin to high after the pre-delay and for the given hold time
+ *  * The data pins for the communication with the 595s are set by defines at the beginning of this header file
+ *  * Occupies timer 0
+ *  * An instance is already created and can be used with extern TriggerManager triggers;
+ *
+ *
  */
 
 #ifndef TRIGGERMANAGER_H_
@@ -27,7 +37,7 @@
 
 
 // the number of 595s that are daisy chained
-// could be calculated from number of channels but this avoids dynamic allocation
+// could be calculated from number of channels but using a constant avoids dynamic allocation
 // can be reworked to a template to avoid this definition
 const uint8_t number595 = 3;
 
@@ -56,10 +66,12 @@ public:
 	/*void setOff(uint8_t channel);*/
 	/*void setInverse(uint8_t channel, bool val); */
 
-	// set all triggers off immediatelly
+	// set all triggers off immediately
 	void setAllOff();
 
-	// for ISR; not actually public
+
+// for ISR; not actually public
+public:
 	void checkForToggle();
 
 private:

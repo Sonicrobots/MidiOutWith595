@@ -2,7 +2,7 @@
  * TriggerManager.cpp
  *
  *  Created on: 11.03.2015
- *      Author: user
+ *      Author: Lennart Schierling for bastl-instruments
  */
 
 
@@ -67,7 +67,7 @@ void TriggerManager::checkForToggle() {
   }
 
   // always update
-  // check for nescessity doesn't make sense because
+  // check for necessity doesn't make sense because
   // we need to set interrupt time for maximum
   // execution time of this function anyways
   update();

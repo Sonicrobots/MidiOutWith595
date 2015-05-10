@@ -2,7 +2,7 @@
  * shiftRegisterFast.h
  *
  *  Created on: 06.07.2014
- *      Author: user
+ *      Author: Lennart Schierling for bastl-instruments
  */
 
 #ifndef SHIFTREGISTERFAST_H_
