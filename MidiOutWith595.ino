@@ -101,10 +101,10 @@ void loop() {
 
 
 	// set the hold time for all channels
-	uint8_t holdTime = analogRead(2);
-	for (uint8_t index=0; index<channels; index++) {
-		triggers.setHoldTime(index,holdTime);
-	}
+//	uint8_t holdTime = analogRead(4);
+//	for (uint8_t index=0; index<channels; index++) {
+//		triggers.setHoldTime(index,holdTime);
+//	}
 
     
     
