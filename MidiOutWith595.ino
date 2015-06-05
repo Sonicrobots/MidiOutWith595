@@ -41,11 +41,16 @@ extern TriggerManager triggers;
 //  Set up dynamic behavior for different 595 pins that are controlled by a TriggerManager
 const uint8_t channels = 25;
  //             	595-PIN    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
-uint8_t preDelays[channels] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  };
+uint8_t preDelays[channels] = {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  };
 uint8_t holdTimes[channels] = {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90  };
 uint8_t  midiNote[channels] = {1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25  };
 
 const uint8_t testLED = 13;
+
+
+//#define DEBUG
+
+
 
 
 // Readout the coded switch on PIN 2,4,5,7 on Startup. To set the MIDI Channel (1-16)
@@ -65,21 +70,25 @@ uint8_t readMidiChannel()
 
 
 void HandleNoteOn(byte channel, byte note, byte velocity) {
-      
-    digitalWrite(testLED,HIGH);
-  
 
-	for (uint8_t index=0; index< channels; index++) {
+	// searching for the channel that fits the received note
+    for (uint8_t index=0; index< channels; index++) {
+
 		if (midiNote[index] == note) {
+
+			digitalWrite(testLED,HIGH);
 			triggers.setOn(note);
+
 			return; // no need to search further
 		}
 	}
 }
 
 void HandleNoteOff(byte channel, byte note, byte velocity) {
-	//needed or not?
-      digitalWrite(testLED,LOW);
+
+	// just for indication if midi works
+	digitalWrite(testLED,LOW);
+
 }
 
 
@@ -88,23 +97,57 @@ void HandleNoteOff(byte channel, byte note, byte velocity) {
 void setup() {
       pinMode(testLED, OUTPUT);
 
+      #ifndef DEBUG
       MIDI.setHandleNoteOn(HandleNoteOn);
       MIDI.setHandleNoteOff(HandleNoteOff);
       MIDI.begin(readMidiChannel());  // listens on only channel which is set up with the coded switch
+	  #endif
+
+	  #ifdef DEBUG
+      Serial.begin(115200);
+      Serial.println("Hello");
+	  #endif
 
       triggers.init(channels,&preDelays[0],&holdTimes[0]);
+
+
 }
 
 
 void loop() {
+	#ifndef DEBUG
 	MIDI.read();
+	#endif
+
+    #ifdef DEBUG
+	uint8_t note = Serial.parseInt(); // this waits until a number is received
+
+	if (note != 0) { // 0 has to be excluded because it is returned as a timeout in parseInt()
+		Serial.print("On "); Serial.println(note);
+		HandleNoteOn(0,note,255);
+	}
+	#endif
 
 
 	// set the hold time for all channels
-//	uint8_t holdTime = analogRead(4);
-//	for (uint8_t index=0; index<channels; index++) {
-//		triggers.setHoldTime(index,holdTime);
-//	}
+	uint8_t holdTime = analogRead(4);
+
+	static uint8_t oldHoldTime;
+	if (holdTime != oldHoldTime) {
+		oldHoldTime = holdTime;
+
+		#ifdef DEBUG
+		Serial.print("Hold time changed: "); Serial.println(holdTime);
+		#endif
+
+		for (uint8_t index=0; index<channels; index++) {
+			triggers.setHoldTime(index,holdTime);
+		}
+	}
+
+
+
+
 
     
     
