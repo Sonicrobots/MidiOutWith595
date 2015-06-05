@@ -9,6 +9,13 @@
 #include "TriggerManager.h"
 #include "portManipulations.h"
 
+//#define DEBUG_PRINT
+//#define DEBUG_IR
+
+#ifdef DEBUG_IR
+#define DEBUGPIN D,4
+#endif
+
 
 
 void TriggerManager::init(uint8_t numberChannels, uint8_t* preDelay, uint8_t* holdTime) {
@@ -26,13 +33,26 @@ void TriggerManager::init(uint8_t numberChannels, uint8_t* preDelay, uint8_t* ho
   TCCR0B = (1<<CS02) | (1<<CS00);
   TIMSK0 = (1<<OCIE0A);
   OCR0A  = F_CPU/1024/interruptFreq;
+
+  #ifdef DEBUG_IR
+  bit_dir_outp(DEBUGPIN);
+  bit_set(DEBUGPIN);
+  #endif
 }
 
 void TriggerManager::setPreDelay(uint8_t channel, uint8_t time) {
-  preDelays[channel] = time;
+
+	// do nothing if channel number is out of bounds
+	if (channel >= number595*8) return;
+
+	preDelays[channel] = min(254,time);
 }
 void TriggerManager::setHoldTime(uint8_t channel, uint8_t time) {
-  holdTimes[channel] = time;
+
+	// do nothing if channel number is out of bounds
+	if (channel >= number595*8) return;
+
+	holdTimes[channel] = min(254,time);
 }
 
 void TriggerManager::update() {
@@ -44,11 +64,19 @@ void TriggerManager::update() {
 
 void TriggerManager::setOn(uint8_t channel) {
 
+  #ifdef DEBUG_PRINT
+  Serial.println("checking if valid");
+  #endif
+
   // do nothing if channel number is out of bounds
-  if (channel > number595*8) return;
+  if (channel >= number595*8) return;
 
   // do nothing if channel is active
-  if (toggleTimes[channel] > 0) return;
+  if (toggleTimes[channel] != 255) return;
+
+  #ifdef DEBUG_PRINT
+  Serial.println("valid");
+  #endif
 
   toggleTimes[channel] = preDelays[channel];
 }
@@ -60,10 +88,14 @@ bool TriggerManager::isChannelOn(uint8_t channel) {
 
 void TriggerManager::checkForToggle() {
   for (uint8_t index=0; index<number595*8; index++) {
-    if (toggleTimes[index]>0){
+
+    if (toggleTimes[index] != 255){
       toggleTimes[index]--;
-      if (toggleTimes[index] == 0) toggleChannel(index);
+
+      if (toggleTimes[index] == 255) toggleChannel(index);
+
     }
+
   }
 
   // always update
@@ -95,8 +127,14 @@ void TriggerManager::setAllOff() {
 
 TriggerManager triggers;
 
-//..check maximum execution time with oscilloscope maximum interrupt frequency
+
 ISR(TIMER0_COMPA_vect) {
+  #ifdef DEBUG_IR
+  bit_set(DEBUGPIN);
+  #endif
   triggers.checkForToggle();
+  #ifdef DEBUG_IR
+  bit_clear(DEBUGPIN);
+  #endif
 }
 
