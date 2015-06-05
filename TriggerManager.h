@@ -43,8 +43,8 @@ const uint8_t number595 = 3;
 
 // defines the time unit in which you are setting delay and hold time as 1/interruptFreq
 // value can be between 15626 and 62
-// TODO: check maximum frequency defined by execution time of ISR
-const uint16_t interruptFreq = 1000;
+// 4k seems to be kind of an upper limit. To go higher you need to carefully measure timings.
+const uint16_t interruptFreq = 3000;
 
 
 class TriggerManager {
