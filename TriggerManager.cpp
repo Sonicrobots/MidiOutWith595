@@ -120,8 +120,8 @@ void TriggerManager::setAllOff() {
     states[index] = 0;
   }
 
-  for (uint8_t index=0; index<number595*3; index++) {
-    toggleTimes[index] = 0;
+  for (uint8_t index=0; index<number595*8; index++) {
+    toggleTimes[index] = 255;
   }
 }
 
